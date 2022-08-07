@@ -42,19 +42,22 @@ let letmodule ~loc m expr =
                  (pmod_apply ~loc (pmod_ident ~loc (Loc.make ~loc (Ldot (Lident "Map", "Make")))) m)
                  expr
 
+(** Create a module identifier *)
+let pmod_of_longident ~loc name = pmod_ident ~loc (Loc.make ~loc name)
+
 (** Infer the type of the given expression *)
 let pmod_of_lhs ~loc lhs =
-  pmod_ident ~loc (Loc.make ~loc (Lident begin
+  pmod_of_longident ~loc (Lident begin
     match lhs with
-      | Pexp_construct ({ txt = Lident "false" | Lident "true"; _ }, None) -> "Bool"
-      | Pexp_constant (Pconst_char _) -> "Char"
-      | Pexp_constant (Pconst_float _) -> "Float"
-      | Pexp_constant (Pconst_integer _) -> "Int"
-      | Pexp_constant (Pconst_string _) -> "String"
-      | Pexp_construct ({ txt = Lident "()"; _ }, None) -> "Unit"
-      | _ -> Location.raise_errorf ~loc "`map' cannot infer the type of this value. You need to \
-                                         give an explicit bool, char, float, int, string or unit."
-    end))
+    | Pexp_construct ({ txt = Lident "false" | Lident "true"; _ }, None) -> "Bool"
+    | Pexp_constant (Pconst_char _) -> "Char"
+    | Pexp_constant (Pconst_float _) -> "Float"
+    | Pexp_constant (Pconst_integer _) -> "Int"
+    | Pexp_constant (Pconst_string _) -> "String"
+    | Pexp_construct ({ txt = Lident "()"; _ }, None) -> "Unit"
+    | _ -> Location.raise_errorf ~loc "`map' cannot infer the type of this value. You need to give \
+                                       an explicit bool, char, float, int, string or unit."
+  end)
 
 (** Dispatch to the type inferer and map builder *)
 let process_sequence ~loc ({ pexp_desc; pexp_loc = loc'; _ } as expr) seq =
@@ -69,15 +72,21 @@ let process_sequence ~loc ({ pexp_desc; pexp_loc = loc'; _ } as expr) seq =
                                      `key => value' expressions"
 
 (** Normalize the acceptable map formats *)
-let process ~loc = function
-  | { pexp_desc = Pexp_sequence (expr, seq); _ } -> process_sequence ~loc expr (Some seq)
-  | expr -> process_sequence ~loc expr None
+let process ~loc ~arg expr =
+  match arg with
+  | Some { txt; loc = loc' } -> letmodule ~loc:loc' (pmod_of_longident ~loc:loc' txt)
+                                          (make_map ~loc [] (Some expr))
+  | None -> begin
+      match expr with
+      | { pexp_desc = Pexp_sequence (expr, seq); _ } -> process_sequence ~loc expr (Some seq)
+      | expr -> process_sequence ~loc expr None
+    end
 
 (** Declare the [map] extension *)
 let mapper =
-  Extension.declare "map" Extension.Context.expression
+  Extension.declare_with_path_arg "map" Extension.Context.expression
     Ast_pattern.(single_expr_payload __)
-    (fun ~loc ~path:_ -> process ~loc)
+    (fun ~loc ~path:_ ~arg -> process ~loc ~arg)
 
 (** Register the transformation *)
 let () = Driver.register_transformation "map" ~extensions:[mapper]

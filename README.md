@@ -45,20 +45,34 @@ will work just fine.
 
 ### More complex cases
 
+#### Simple modules
+
 If the first key you give is a bound value, you need to help the rewriter a little:
+
+```ocaml
+let (a, b, c) = (0, 1, 2) in
+[%map.Int a => "zero"; b => "one"; c => "two"]
+```
+
+or
 
 ```ocaml
 let (a, b, c) = (0, 1, 2) in
 [%map Int; a => "zero"; b => "one"; c => "two"]
 ```
 
-You can also use functors!
+For simple modules, the first syntax should be preferred (one character shorter ).
+
+
+#### Functors
+
+You can also use functors! But only the second syntax is going to work:
 
 ```ocaml
 [%map Functor (Module); key => value]
 ```
 
-But they need to be of arity 1 (`Functor (Module) (Module')` cannot be used as it wouldn’t work well with OCaml’s parser). As we could expect, using a generative functor gives the following compilation error:
+These functors need to be of arity 1 (`Functor (Module) (Module')` cannot be used as it wouldn’t work well with OCaml’s parser). As we could expect, using a generative functor gives the following compilation error:
 
 ```
 Error: This expression has type 'a $Map.t

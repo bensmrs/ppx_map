@@ -16,6 +16,7 @@ let test_empty () =
 (** A check for single element maps *)
 let test_single () =
   let i = 0 in
+  check int "can initialize explicitely typed maps" 1 (Int_map.cardinal [%map.Int i => 10]);
   check int "can initialize explicitely typed maps" 1 (Int_map.cardinal [%map Int; i => 10]);
   check int "can initialize implicitely typed maps" 1 (Int_map.cardinal [%map 0 => 10])
 
@@ -52,7 +53,7 @@ let tests = [
 ]
 
 let test_suites: unit test list = [
-  "Catch", tests;
+  "map", tests;
 ]
 
 (** Run the test suites *)
