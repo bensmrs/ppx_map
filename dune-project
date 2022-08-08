@@ -14,5 +14,5 @@
  (synopsis "A PPX rewriter to simplify the declaration of maps")
  (description "This package allows to declare maps in an expressive way using [key => value] expressions")
  (depends
-  (alcotest (>= 1.6.0))
+  (alcotest (and :with-test (>= 1.6.0)))
   (ppxlib (>= 0.27.0))))
