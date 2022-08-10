@@ -1,6 +1,6 @@
 (lang dune 2.7)
 (name ppx_map)
-(version 0.2.0)
+(version 0.2.1)
 (generate_opam_files true)
 (license MIT)
 (authors "Benjamin Somers <benjamin.somers@imt-atlantique.fr>")

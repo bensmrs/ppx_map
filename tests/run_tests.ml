@@ -11,6 +11,7 @@ module M (X : DUMMY) = struct include Int end
 
 (** A check for empty maps *)
 let test_empty () =
+  check int "can initialize empty maps" 0 (Int_map.cardinal [%map.Int]);
   check int "can initialize empty maps" 0 (Int_map.cardinal [%map Int])
 
 (** A check for single element maps *)

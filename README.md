@@ -45,6 +45,22 @@ will work just fine.
 
 ### More complex cases
 
+#### Empty maps
+
+While it may seem trivial, creating an empty map requires a little more than just `[%map]`; a type must be specified:
+
+```ocaml
+[%map.Int]
+```
+
+or
+
+```ocaml
+[%map Int]
+```
+
+will do the trick. I don’t know which syntax I prefer; pick your own and stick to it!
+
 #### Simple modules
 
 If the first key you give is a bound value, you need to help the rewriter a little:
@@ -61,7 +77,7 @@ let (a, b, c) = (0, 1, 2) in
 [%map Int; a => "zero"; b => "one"; c => "two"]
 ```
 
-For simple modules, the first syntax should be preferred (one character shorter ).
+Again, you can decide which syntax you prefer.
 
 
 #### Functors
@@ -81,3 +97,5 @@ Error: This expression has type 'a $Map.t
 ```
 
 Don’t do that!
+
+Also, I don’t really see why you’d ever need to use functors here, but that was fun to implement 🙂
